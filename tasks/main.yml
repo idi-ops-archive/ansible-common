@@ -1,0 +1,127 @@
+---
+
+- name: Set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Configure rsyslog
+  template:
+    src: rsyslog.conf.j2
+    dest: /etc/rsyslog.conf
+    mode: '0644'
+    owner: root
+    group: root
+    backup: no
+  when: '"-log" not in inventory_hostname'
+  notify:
+    - restart rsyslog
+
+- name: Set timezone
+  file:
+    src: "/usr/share/zoneinfo/{{ common_timezone }}"
+    dest: /etc/localtime
+    state: link
+
+- name: Configure time synchronization
+  template:
+    src: chrony.conf
+    dest: /etc/chrony.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: no
+  notify: restart chronyd
+
+- name: Enable time synchronization service
+  service:
+    name: chronyd
+    enabled: yes
+
+- name: Configure sudo
+  copy:
+    src: sudoers
+    dest: /etc/sudoers
+    owner: root
+    group: root
+    mode: '0440'
+    backup: no
+
+- name: Create adm group
+  group:
+    name: "{{ common_adm_group }}"
+    state: present
+
+- name: Create adm users
+  user:
+    name: "{{ item.name }}"
+    group: "{{ common_adm_group }}"
+    createhome: yes
+    password: "!!"
+    update_password: always
+    state: present
+  with_items: "{{ common_adm_users }}"
+
+- name: Update SSH authorized keys
+  authorized_key:
+    user: "{{ item.name }}"
+    key: "{{ item.ssh_key }}"
+    exclusive: yes
+    manage_dir: yes
+    state: present
+  with_items: "{{ common_adm_users }}"
+
+- name: Remove root password
+  user:
+    name: root
+    password: "!!"
+    update_password: always
+    state: present
+  when: common_unset_root_password
+
+- name: Remove root authorized_keys
+  file:
+    path: /root/.ssh/authorized_keys
+    state: absent
+  when: common_remove_root_authorized_keys
+
+- name: Configure DNS resolution
+  template:
+    src: resolv.conf.j2
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+    backup: no
+
+- name: Retrieve list of existing network-scripts
+  shell: "/bin/ls /etc/sysconfig/network-scripts/ifcfg-*"
+  register: netscripts_files
+  changed_when: false
+
+- name: Ensure network-scripts are not trying to manage DNS (1/2)
+  lineinfile:
+    regexp: "^DNS.*"
+    state: absent
+    dest: "{{ item }}"
+  with_items: "{{ netscripts_files.stdout_lines }}"
+
+- name: Ensure network-scripts are not trying to manage DNS (2/2)
+  lineinfile:
+    line: "PEERDNS=no"
+    state: present
+    dest: "{{ item }}"
+  with_items: "{{ netscripts_files.stdout_lines }}"
+
+- name: Set default gateway (activates on next boot)
+  lineinfile:
+    backrefs: yes          # only replace, never add
+    regexp: '^GATEWAY='
+    line: 'GATEWAY={{ common_gateway }}'
+    dest: '{{ item }}'
+  with_items: '{{ netscripts_files.stdout_lines }}'
+
+- name: Install packages
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items: "{{ common_packages }}"

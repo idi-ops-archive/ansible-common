@@ -1,0 +1,5 @@
+options {{ common_resolvconf_options }}
+search {{ inventory_hostname | domain }}
+{% for entry in common_nameservers %}
+nameserver {{ entry }}
+{% endfor %}
