@@ -1,6 +1,5 @@
 $ModLoad imuxsock 
 $ModLoad imjournal 
-$ModLoad omfwd
 
 $WorkDirectory /var/lib/rsyslog
 $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
@@ -19,5 +18,10 @@ uucp,news.crit                                          /var/log/spooler
 local7.*                                                /var/log/boot.log
 
 {% for entry in common_syslog_servers %}
+$ActionQueueType LinkedList
+$ActionQueueFileName Forward1
+$ActionResumeRetryCount -1
+$ActionQueueSaveOnShutdown on
 *.*  @@{{ entry }}:{{ common_syslog_port }}
+
 {% endfor %}
