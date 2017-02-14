@@ -119,6 +119,7 @@
     line: 'GATEWAY={{ common_gateway }}'
     dest: '{{ item }}'
   with_items: '{{ netscripts_files.stdout_lines }}'
+  notify: reboot server
 
 - name: Install packages
   yum:

@@ -15,3 +15,9 @@
   service:
     name: rsyslog
     state: restarted
+
+- name: reboot server
+  shell: "sleep 2 && /usr/sbin/shutdown -r now 'Maintenance reboot'"
+  ignore_errors: yes
+  async: 1
+  poll: 0
