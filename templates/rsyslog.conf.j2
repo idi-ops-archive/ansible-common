@@ -1,6 +1,5 @@
 $ModLoad imuxsock 
 $ModLoad imjournal 
-$ModLoad omrelp
 
 $WorkDirectory /var/lib/rsyslog
 $ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
@@ -11,6 +10,18 @@ $IMJournalStateFile imjournal.state
 kern.*                                                 /dev/console
 *.emerg                                                 :omusrmsg:*
 
+*.info;mail.none;authpriv.none;cron.none                /var/log/messages
+authpriv.*                                              /var/log/secure
+mail.*                                                  -/var/log/maillog
+cron.*                                                  /var/log/cron
+uucp,news.crit                                          /var/log/spooler
+local7.*                                                /var/log/boot.log
+
 {% for entry in common_syslog_servers %}
-*.*  :omrelp:{{ entry }}:{{ common_syslog_port }}
+$ActionQueueType LinkedList
+$ActionQueueFileName Forward1
+$ActionResumeRetryCount -1
+$ActionQueueSaveOnShutdown on
+*.*  @@{{ entry }}:{{ common_syslog_port }}
+
 {% endfor %}
