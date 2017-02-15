@@ -17,10 +17,8 @@
     - restart rsyslog
 
 - name: Set timezone
-  file:
-    src: "/usr/share/zoneinfo/{{ common_timezone }}"
-    dest: /etc/localtime
-    state: link
+  timezone:
+    name: '{{ common_timezone }}'
 
 - name: Configure time synchronization
   template:
@@ -124,5 +122,5 @@
 - name: Install packages
   yum:
     name: "{{ item }}"
-    state: latest
+    state: present
   with_items: "{{ common_packages }}"

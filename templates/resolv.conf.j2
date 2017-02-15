@@ -1,5 +1,5 @@
 options {{ common_resolvconf_options }}
-search {{ inventory_hostname | domain }}
+search {{ ansible_domain }}
 {% for entry in common_nameservers %}
 nameserver {{ entry }}
 {% endfor %}
