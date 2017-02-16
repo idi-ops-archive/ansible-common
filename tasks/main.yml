@@ -111,7 +111,7 @@
     dest: "{{ item }}"
   with_items: "{{ netscripts_files.stdout_lines }}"
 
-- name: Set default gateway (activates on next boot)
+- name: Set default gateway
   lineinfile:
     backrefs: yes          # only replace, never add
     regexp: '^GATEWAY='
