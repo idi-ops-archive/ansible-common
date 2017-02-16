@@ -94,6 +94,7 @@
 - name: Retrieve list of existing network-scripts
   shell: "/bin/ls /etc/sysconfig/network-scripts/ifcfg-*"
   register: netscripts_files
+  check_mode: no # force task to run even in check mode (-C)
   changed_when: false
 
 - name: Ensure network-scripts are not trying to manage DNS (1/2)
