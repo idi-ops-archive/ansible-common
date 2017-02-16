@@ -28,15 +28,21 @@ def test_sudoers(File):
     assert f.mode == 0o440
 
 
-def test_user(User):
-    u = User('testuser')
+def test_user(User, Sudo):
+    with Sudo():
+        u = User('testuser')
 
-    assert u.exists
+        assert u.exists
+        assert u.password == '!!'
+        assert u.group == 'testgroup'
 
 
-# Workaround for testinfra/issues/187
-def test_root_password(Command):
-    assert Command("sudo getent shadow root").stdout.split(':')[1] == '!!'
+def test_root_password(User, Sudo):
+    with Sudo():
+        u = User('root')
+
+        assert u.exists
+        assert u.password == '!!'
 
 
 def test_group(Group):
