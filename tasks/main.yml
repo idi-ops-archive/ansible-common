@@ -17,10 +17,8 @@
     - restart rsyslog
 
 - name: Set timezone
-  file:
-    src: "/usr/share/zoneinfo/{{ common_timezone }}"
-    dest: /etc/localtime
-    state: link
+  timezone:
+    name: '{{ common_timezone }}'
 
 - name: Configure time synchronization
   template:
@@ -96,6 +94,7 @@
 - name: Retrieve list of existing network-scripts
   shell: "/bin/ls /etc/sysconfig/network-scripts/ifcfg-*"
   register: netscripts_files
+  check_mode: no # force task to run even in check mode (-C)
   changed_when: false
 
 - name: Ensure network-scripts are not trying to manage DNS (1/2)
@@ -112,7 +111,7 @@
     dest: "{{ item }}"
   with_items: "{{ netscripts_files.stdout_lines }}"
 
-- name: Set default gateway (activates on next boot)
+- name: Set default gateway
   lineinfile:
     backrefs: yes          # only replace, never add
     regexp: '^GATEWAY='
@@ -124,5 +123,5 @@
 - name: Install packages
   yum:
     name: "{{ item }}"
-    state: latest
+    state: present
   with_items: "{{ common_packages }}"

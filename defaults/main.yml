@@ -1,17 +1,31 @@
 ---
 
+# Remove root's password
 common_unset_root_password: yes
+
+# Remove root's unauthoried_keys file
 common_remove_root_authorized_keys: yes
 
+# Syslog port (standard ports: UDP=514, TCP=601, RELP=2514)
 common_syslog_port: 601
+
+# Remote syslog servers (logs will be sent to ALL of them simultaneously)
 common_syslog_servers: []
 
+# Common packages across all hosts
 common_packages: []
 
+# NTP servers
 common_ntp_servers:
   - 0.pool.ntp.org
   - 1.pool.ntp.org
   - 2.pool.ntp.org
   - 3.pool.ntp.org
 
+# DNS servers
+common_nameservers:
+  - 8.8.8.8
+  - 8.8.4.4
+
+# Options added to /etc/resolv.conf through the 'options' directive (see resolv.conf(5))
 common_resolvconf_options: single-request-reopen

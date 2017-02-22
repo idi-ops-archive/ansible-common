@@ -1,0 +1,24 @@
+- hosts: all
+
+  vars:
+    common_timezone: UTC
+    common_gateway: 10.0.2.2
+    common_nameservers:
+      - 8.8.8.8
+    common_adm_group: testgroup
+    common_ntp_servers:
+      - 0.pool.ntp.org
+    common_adm_users:
+      - name: testuser
+        comment: testuser
+        ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCsFJ47yu5auqmBvQwWnAKmuLZspV4VPHGDtKqCkP5RxALoS9PcPdtLXWXT5Kx9bPc18k3RUFrgqKSJsBCpoGeLTBnTWUJBnz3737lvy6RKlqrBX2SuvbZvbLSRGSoTmVesO8wyyRtsOUj6if5XcpwdskhO298p2yukBThvUM/HFLPSIHEQ/xlpeEY+sccpwugjeePYHs3sY7YEWEKT2/N9Pvo/vK170tEYNYaieSx99cQl8oVaA+1Dr4R2w/Ej6beUxu2qatKDyEbWtHWtiLMnLlBiz8j9FOKwGn/gjS9b74QFVTfIUxwL3QsVtGWzJNBdlTQukINqol2yECrvLRt testuser"
+
+#  pre_tasks:
+#
+#    - name: Install test dependencies
+#      package:
+#        name: net-tools
+#        state: present
+
+  roles:
+    - role: ansible-common
